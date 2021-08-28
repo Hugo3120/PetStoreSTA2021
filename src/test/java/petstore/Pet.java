@@ -12,12 +12,13 @@ import static org.hamcrest.Matchers.contains;
 
 public class Pet {
 
-    String uri = "https://petstore.swagger.io/v2/pet\n";
+    String uri = "https://petstore.swagger.io/v2/pet";
 
     public String lerJson(String caminhoJson) throws IOException {
         return new String(Files.readAllBytes(Paths.get(caminhoJson)));
     }
-    @Test
+
+    @Test(priority = 1)
     public void incluirPet() throws IOException {
         String jsonBody = lerJson("db/pet1.json");
 
@@ -26,22 +27,45 @@ public class Pet {
                 .contentType("application/json")
                 .log().all()
                 .body(jsonBody)
-        .when()
+                .when()
                 .post(uri)
 
+                .then()
+                .log().all()
+                .statusCode(200)
+                .body("name", is("Miffy"))
+                .body("status", is("available"))
+                .body("category.name", is("ax34hgf56jk"))
+                .body("tags.name", contains("data"))
+        ;
+
+
+    }
+
+    @Test(priority = 2)
+    public void consultarPet() {
+        String petId = "3112198383";
+        String token =
+        given()
+                .contentType("application/json")
+                .log().all()
+        .when()
+                .get(uri + "/" + petId)
         .then()
                 .log().all()
                 .statusCode(200)
                 .body("name", is("Miffy"))
                 .body("status", is("available"))
-                .body("category.name", is("Dog"))
-                .body("tags.name",contains("sta"))
+                .body("category.name", is("ax34hgf56jk"))
+                .body("tags.name", contains("data"))
+        .extract()
+                .path("category.nama")
+
         ;
-
-
-
+        System.out.println("O token é " + token);
 
     }
-
-
 }
+
+
+
